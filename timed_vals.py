@@ -1,16 +1,12 @@
-#https://stackoverflow.com/questions/10048249/how-do-i-determine-if-current-time-is-within-a-specified-range-using-pythons-da
-from datetime import datetime, time
+from datetime import datetime, timedelta
 
-def is_time_between(begin_time, end_time, check_time=None):
-    # If check time is not given, default to current UTC time
-    check_time = check_time or datetime.utcnow().time()
-    if begin_time < end_time:
-        return check_time >= begin_time and check_time <= end_time
-    else: # crosses midnight
-        return check_time >= begin_time or check_time <= end_time
+def get_filename(check_time=None) -> str:
+    # Return the YearMonthDate of today if time > 6AM/check_time
+    # else return YearMonthDate of yesterday
+    check_time = check_time or '06:00:00'
+    if datetime.now().strftime("%H:%M:%S") < check_time:
+        return (datetime.now() - timedelta(days = 1)).strftime("%Y%m%d")
+    else:
+        return datetime.now().strftime("%Y%m%d")
 
-# Original test case from OP
-is_time_between(time(10,30), time(16,30))
 
-# Test case when range crosses midnight
-is_time_between(time(22,0), time(4,00))
