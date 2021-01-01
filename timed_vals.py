@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from time import sleep
 import random
+import sqlite3
 
 
 
@@ -45,6 +46,11 @@ if __name__ == '__main__':
     myval = {}  # a dictionary of 'date':cumulative_val
     random.seed(42)
 
+    conn = sqlite3.connect('sensor_data.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS sensor_data 
+                    (date datetime, value float)''')
+
     while True:
         sleep(random.randint(1,5))
         file_key = get_filename()
@@ -53,8 +59,18 @@ if __name__ == '__main__':
                 myval[file_key] += gen_random_val()
             else:
                 myval[file_key] = gen_random_val()
-        
+                # Now write the previous dict to db
+                try:
+                    previous_key = max(t for t in myval if t < file_key)
+                    with conn:
+                        c.execute(""" INSERT INTO sensor_data values({previous_key},{myval[previous_key]})""")
+                        # c.commit()
+                except ValueError:
+                    print("ValueError: First run perhaps...")
+                    print("This is expected for the first execution.")
         print(myval)
+
+conn.close()
 
 
 
