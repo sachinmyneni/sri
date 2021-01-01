@@ -50,25 +50,28 @@ if __name__ == '__main__':
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS sensor_data 
                     (date datetime, value float)''')
-
+    db_insert_str = "INSERT INTO sensor_data values({},{})"
     while True:
         sleep(random.randint(1,5))
         file_key = get_filename()
         if get_condition():
             if file_key in myval:
+                # Not check_time yet so add to existing val from the day.
                 myval[file_key] += gen_random_val()
             else:
+                # Either new DB or past the check_time. 
+                # Create new item in dict and write last old item
+                # if any, to the DB.
                 myval[file_key] = gen_random_val()
                 # Now write the previous dict to db
                 try:
                     previous_key = max(t for t in myval if t < file_key)
                     with conn:
-                        c.execute(""" INSERT INTO sensor_data values({previous_key},{myval[previous_key]})""")
-                        # c.commit()
+                        c.execute(db_insert_str.format(previous_key,myval[previous_key]))
                 except ValueError:
                     print("ValueError: First run perhaps...")
                     print("This is expected for the first execution.")
-        print(myval)
+        # print(myval)
 
 conn.close()
 
