@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-import random
 from time import sleep
+import random
+
 
 
 def gen_random_val() -> float:
@@ -45,12 +46,15 @@ if __name__ == '__main__':
     random.seed(42)
 
     while True:
-        sleep(1)
+        sleep(random.randint(1,5))
+        file_key = get_filename()
         if get_condition():
-            if get_filename() in myval:
-                myval[get_filename()] += gen_random_val()
+            if file_key in myval:
+                myval[file_key] += gen_random_val()
             else:
-                myval[get_filename()] = gen_random_val()
+                myval[file_key] = gen_random_val()
+        
+        print(myval)
 
 
 
